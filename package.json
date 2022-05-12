@@ -2,8 +2,8 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "stock-lookup",
   "title": "Stock Lookup",
-  "description": "Retrieves stock information from yahoo finance API",
-  "icon": "command-icon.png",
+  "description": "Retrieves stock information from the alphavantage API. Get a free API Key from https://www.alphavantage.co/support/#api-key",
+  "icon": "money-emoji.webp",
   "author": "jones-sam",
   "categories": [
     "Data",
@@ -15,7 +15,7 @@
       "name": "stock-lookup",
       "title": "Stock Lookup",
       "subtitle": "Search and retrieve stock information",
-      "description": "Retrieves stock information from yahoo finance API",
+      "description": "Retrieves stock information from the alphavantage API",
       "mode": "view"
     }
   ],
