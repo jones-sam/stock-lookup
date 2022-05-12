@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { ActionPanel, List, Action, Icon, LocalStorage, Form } from "@raycast/api";
+import { Action, ActionPanel, Form, Icon, List, LocalStorage } from "@raycast/api";
+import { useCallback, useEffect, useState } from "react";
+import { SearchResult, searchStocks } from "./alphavantageApi";
 
 export default function StockLookup() {
-  const [isValidApiKey, setIsValidApiKey] = useState<boolean>(false);
+  const [isValidApiKey, setIsValidApiKey] = useState(false);
+  const [stockSearchResults, setStockSearchResults] = useState<SearchResult[]>([]);
 
   const getApiKey = useCallback(async () => {
     const apiKey = await LocalStorage.getItem("apiKey");
@@ -37,9 +39,30 @@ export default function StockLookup() {
     );
   }
   return (
-    <List searchBarPlaceholder="Search for a stock">
-      <List.Item title="test" />
-      <List.Item title="test2" />
+    <List
+      searchBarPlaceholder="Search for a stock"
+      onSearchTextChange={async (text) => {
+        if (text.length > 0) {
+          const results = await searchStocks({ keywords: text });
+          setStockSearchResults(results);
+        }
+      }}
+      throttle={true}
+    >
+      {stockSearchResults &&
+        stockSearchResults.map((result) => {
+          return (
+            <List.Item
+              key={result.symbol}
+              title={result.symbol}
+              subtitle={result.name}
+              accessories={[
+                { text: result.currency, icon: "💲", tooltip: "Currency the stock is traded in" },
+                { text: result.region, icon: Icon.Globe, tooltip: "Region where the stock is traded" },
+              ]}
+            />
+          );
+        })}
     </List>
   );
 }
