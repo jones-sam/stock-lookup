@@ -15,6 +15,10 @@ export async function searchStocks({ keywords }: { keywords: string }) {
 
   const res = await axios.get(`${BASE_URL}function=SYMBOL_SEARCH&keywords=${keywords}&apikey=${apiKey}`);
 
+  if (!res.data.bestMatches) {
+    throw Error("Api key Invalid");
+  }
+
   const searchResults: SearchResult[] = [];
   res.data.bestMatches.forEach((x: Record<string, string>) => {
     searchResults.push({
@@ -24,6 +28,7 @@ export async function searchStocks({ keywords }: { keywords: string }) {
       currency: x["8. currency"],
     });
   });
+  console.log(searchResults);
 
   return searchResults;
 }
