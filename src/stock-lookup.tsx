@@ -1,6 +1,7 @@
 import { Action, ActionPanel, Form, Icon, List, LocalStorage } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, searchStocks } from "./alphavantageApi";
+import { StockInfo } from "./StockInfo";
 
 export default function StockLookup() {
   const [isValidApiKey, setIsValidApiKey] = useState(false);
@@ -60,6 +61,11 @@ export default function StockLookup() {
                 { text: result.currency, icon: "💲", tooltip: "Currency the stock is traded in" },
                 { text: result.region, icon: Icon.Globe, tooltip: "Region where the stock is traded" },
               ]}
+              actions={
+                <ActionPanel>
+                  <Action.Push title={`View ${result.symbol}`} target={<StockInfo />} icon={Icon.Document} />
+                </ActionPanel>
+              }
             />
           );
         })}
