@@ -1,5 +1,4 @@
-import { Form, ActionPanel, Action, LocalStorage } from "@raycast/api";
-import React from "react";
+import { Action, ActionPanel, Form, LocalStorage } from "@raycast/api";
 
 export function ApiKeyForm({ testApiKey }: { testApiKey: () => void }) {
   return (

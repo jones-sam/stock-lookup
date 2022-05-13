@@ -1,7 +1,7 @@
-import { ApiKeyForm } from "./ApiKeyForm";
-import { Action, ActionPanel, confirmAlert, Form, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, confirmAlert, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, searchStocks } from "./alphavantageApi";
+import { ApiKeyForm } from "./ApiKeyForm";
 import { changeApiKeyAlert } from "./changeApiKeyAlert";
 import { StockResultListItem } from "./StockResultListItem";
 
