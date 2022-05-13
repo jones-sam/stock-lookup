@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { getStockInfoBySymbol, SearchResult, StockInfoInterface } from "./alphavantageApi";
 
@@ -41,7 +41,7 @@ export const StockInfo = ({ stockSearchResult }: StockInfoProps) => {
  ---
  ${
    error
-     ? "Error retrieving data, please try again. \n Remember that with the free tier of the AlphaVantage API you are limited to 5 calls per minute or 500 per day."
+     ? "Error retrieving data, please try again. Remember that with the free tier of the AlphaVantage API you are limited to 5 calls per minute or 500 per day."
      : loading
      ? "Loading..."
      : `
@@ -53,17 +53,16 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
 - *Open*: ${stringToFormattedNumber({ string: stockInfo.open })}
 - *High*: ${stringToFormattedNumber({ string: stockInfo.high })}
 - *Low*: ${stringToFormattedNumber({ string: stockInfo.low })}
+- *Volume*: ${stringToFormattedNumber({ string: stockInfo.volume, isCurrency: false })}
 - *Previous close*: ${stringToFormattedNumber({ string: stockInfo.previousClose })}
 - *Change*: ${stringToFormattedNumber({ string: stockInfo.change })}
 - *Change Percent*: ${stockInfo.changePercent}
       `
          : ""
      }
- 
  `
  }
- 
-    `;
+`;
 
   return (
     <Detail
@@ -81,7 +80,35 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
       }
       isLoading={loading}
       markdown={md}
-      // metadata={stockInfo && !loading ? <Detail.Metadata></Detail.Metadata> : null}
+      metadata={
+        <Detail.Metadata>
+          <Detail.Metadata.Label title="Links" icon={Icon.Link} />
+          {stockInfo && !loading ? (
+            <>
+              <Detail.Metadata.Link
+                target={`https://www.google.com/search?q=%24${stockSearchResult.symbol}`}
+                text="Google Finance"
+                title="Google"
+              />
+              <Detail.Metadata.Link
+                target={`https://finance.yahoo.com/quote/${stockSearchResult.symbol}`}
+                text="Yahoo Finance"
+                title="Yahoo"
+              />
+              <Detail.Metadata.Link
+                target={`https://www.tradingview.com/symbols/${stockSearchResult.symbol}`}
+                text="Trading View"
+                title="Trading View"
+              />
+              <Detail.Metadata.Link
+                target={`https://twitter.com/search?q=%24${stockSearchResult.symbol}`}
+                title="Discussions on Twitter"
+                text="Twitter"
+              />
+            </>
+          ) : null}
+        </Detail.Metadata>
+      }
     />
   );
 };
