@@ -26,7 +26,6 @@ export default function StockLookup() {
   };
 
   const getApiKey = useCallback(async () => {
-    await LocalStorage.removeItem("recentStocks");
     const apiKey = await LocalStorage.getItem("apiKey");
 
     if (!apiKey) {

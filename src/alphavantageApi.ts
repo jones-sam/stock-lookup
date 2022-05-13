@@ -48,7 +48,6 @@ export async function getStockInfoBySymbol(symbol: string) {
   const apiKey = await LocalStorage.getItem("apiKey");
 
   const res = await axios.get(`${BASE_URL}function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`);
-  console.log(res.data["Global Quote"]);
 
   if (!res.data["Global Quote"] || (res.data["Global Quote"] && Object.keys(res.data["Global Quote"]).length === 0)) {
     throw Error("Could not retrieve stock info");
