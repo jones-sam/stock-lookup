@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Detail, Icon, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Detail, Icon, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { getStockInfoBySymbol, SearchResult, StockInfoInterface } from "./alphavantageApi";
 
@@ -18,15 +18,28 @@ export const StockInfo = ({ stockSearchResult }: StockInfoProps) => {
       setStockInfo(data);
       setError(false);
     } catch (error) {
-      console.log(error);
       setError(true);
       showToast({ title: "Unable to fetch stock data", style: Toast.Style.Failure });
     }
     setLoading(false);
   }, []);
 
+  const updateRecentlyViewedStocks = useCallback(async () => {
+    const recentStocks = await LocalStorage.getItem<string>("recentStocks");
+    const recentStocksArr: Array<SearchResult> = recentStocks ? JSON.parse(recentStocks) : [];
+
+    // remove current instance of stock if it has already been searched for and move it to the top of the list
+    let recentStocksArrUpdated = recentStocksArr.filter((stock) => stock.symbol !== stockSearchResult.symbol);
+    recentStocksArrUpdated.unshift(stockSearchResult);
+    // keep array at 10 items max
+    recentStocksArrUpdated = recentStocksArrUpdated.slice(0, 10);
+
+    await LocalStorage.setItem("recentStocks", JSON.stringify(recentStocksArrUpdated));
+  }, []);
+
   useEffect(() => {
     getStockInfo();
+    updateRecentlyViewedStocks();
   }, []);
 
   const stringToFormattedNumber = ({ string, isCurrency = true }: { string: string; isCurrency?: boolean }) => {
@@ -64,7 +77,7 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
  }
 `;
 
-  const googleFinanceUrl = `https://www.google.com/search?q=%24${stockSearchResult.symbol}`;
+  const googleFinanceUrl = `https://www.google.com/search?q=%24${stockSearchResult.symbol}+stock`;
   const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSearchResult.symbol}`;
   const tradingViewUrl = `https://www.tradingview.com/symbols/${stockSearchResult.symbol}`;
   const twitterUrl = `https://twitter.com/search?q=%24${stockSearchResult.symbol}`;

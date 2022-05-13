@@ -40,7 +40,6 @@ export async function searchStocks({ keywords }: { keywords: string }) {
       currency: x["8. currency"],
     });
   });
-  console.log(searchResults);
 
   return searchResults;
 }
@@ -52,8 +51,6 @@ export async function getStockInfoBySymbol(symbol: string) {
   console.log(res.data["Global Quote"]);
 
   if (!res.data["Global Quote"] || (res.data["Global Quote"] && Object.keys(res.data["Global Quote"]).length === 0)) {
-    console.error(res.data);
-
     throw Error("Could not retrieve stock info");
   }
 
@@ -71,6 +68,5 @@ export async function getStockInfoBySymbol(symbol: string) {
     changePercent: rawData["10. change percent"],
   };
 
-  console.log(stockInfo);
   return stockInfo;
 }

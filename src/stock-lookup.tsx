@@ -1,12 +1,14 @@
 import { Action, ActionPanel, confirmAlert, Form, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, searchStocks } from "./alphavantageApi";
-import { StockInfo } from "./StockInfo";
+import { StockResultListItem } from "./StockResultListItem";
 
 export default function StockLookup() {
   const [isValidApiKey, setIsValidApiKey] = useState(true);
   const [stockSearchResults, setStockSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
+  const [recentStocks, setRecentStocks] = useState<SearchResult[]>([]);
 
   const testApiKey = async () => {
     try {
@@ -28,10 +30,23 @@ export default function StockLookup() {
     }
   }, []);
 
+  const getRecentlyViewedStocks = useCallback(async () => {
+    const recentStocks = await LocalStorage.getItem<string>("recentStocks");
+    const recentStocksArr = recentStocks ? JSON.parse(recentStocks) : [];
+    setRecentStocks(recentStocksArr);
+  }, []);
+
   useEffect(() => {
     getApiKey();
+    getRecentlyViewedStocks();
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (isSearching === false) {
+      getRecentlyViewedStocks();
+    }
+  }, [isSearching]);
 
   if (!isValidApiKey) {
     return (
@@ -72,7 +87,7 @@ export default function StockLookup() {
                 primaryAction: {
                   title: "Yes",
                   onAction: async () => {
-                    await LocalStorage.clear();
+                    await LocalStorage.removeItem("apiKey");
                     setIsValidApiKey(false);
                   },
                 },
@@ -86,39 +101,32 @@ export default function StockLookup() {
       onSearchTextChange={async (text) => {
         if (text.length > 0) {
           setIsLoading(true);
+          setIsSearching(true);
+
           const results = await searchStocks({ keywords: text });
           setStockSearchResults(results);
           setIsLoading(false);
         } else {
+          setIsSearching(false);
           setStockSearchResults([]);
         }
       }}
       throttle={true}
     >
-      {/* TODO: add recently searched for stocks on default screen */}
-      {stockSearchResults &&
-        stockSearchResults.map((result) => {
-          return (
-            <List.Item
-              key={result.symbol}
-              title={result.symbol}
-              subtitle={result.name}
-              accessories={[
-                { text: result.currency, icon: "💲", tooltip: "Currency the stock is traded in" },
-                { text: result.region, icon: Icon.Globe, tooltip: "Region where the stock is traded" },
-              ]}
-              actions={
-                <ActionPanel>
-                  <Action.Push
-                    title={`View ${result.symbol}`}
-                    target={<StockInfo stockSearchResult={result} />}
-                    icon={Icon.Document}
-                  />
-                </ActionPanel>
-              }
-            />
-          );
-        })}
+      <List.EmptyView title="No Stocks Found" icon={Icon.LevelMeter} />
+      {isSearching ? (
+        <List.Section key="results" title="Results">
+          {stockSearchResults.map((result) => (
+            <StockResultListItem stockResult={result} />
+          ))}
+        </List.Section>
+      ) : (
+        <List.Section key="recent" title="Recently Viewed Stocks">
+          {recentStocks.map((stockResult) => (
+            <StockResultListItem stockResult={stockResult} />
+          ))}
+        </List.Section>
+      )}
     </List>
   );
 }
