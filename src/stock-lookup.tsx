@@ -21,9 +21,13 @@ export default function StockLookup() {
     } catch (error) {
       await LocalStorage.removeItem("apiKey");
       setIsValidApiKey(false);
-      showToast({ title: "Invalid API key or too many requests", style: Toast.Style.Failure });
+      apiKeyErrorToast();
     }
     setIsLoading(false);
+  };
+
+  const apiKeyErrorToast = () => {
+    showToast({ title: "Invalid API key or too many requests", style: Toast.Style.Failure });
   };
 
   const getApiKey = useCallback(async () => {
@@ -57,6 +61,23 @@ export default function StockLookup() {
     setIsValidApiKey(false);
   };
 
+  const handleStockSearch = async (text: string) => {
+    if (text.length > 0) {
+      setIsLoading(true);
+      setIsSearching(true);
+      try {
+        const results = await searchStocks({ keywords: text });
+        setStockSearchResults(results);
+      } catch (error) {
+        apiKeyErrorToast();
+      }
+    } else {
+      setIsSearching(false);
+      setStockSearchResults([]);
+    }
+    setIsLoading(false);
+  };
+
   if (!isValidApiKey) {
     return <ApiKeyForm testApiKey={testApiKey} />;
   }
@@ -84,19 +105,7 @@ export default function StockLookup() {
       }
       isLoading={isLoading}
       searchBarPlaceholder="Search for a stock"
-      onSearchTextChange={async (text) => {
-        if (text.length > 0) {
-          setIsLoading(true);
-          setIsSearching(true);
-
-          const results = await searchStocks({ keywords: text });
-          setStockSearchResults(results);
-          setIsLoading(false);
-        } else {
-          setIsSearching(false);
-          setStockSearchResults([]);
-        }
-      }}
+      onSearchTextChange={handleStockSearch}
       throttle={true}
     >
       <List.EmptyView
