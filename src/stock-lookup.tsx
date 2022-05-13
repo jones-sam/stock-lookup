@@ -117,13 +117,13 @@ export default function StockLookup() {
       {isSearching ? (
         <List.Section key="results" title="Results">
           {stockSearchResults.map((result) => (
-            <StockResultListItem stockResult={result} />
+            <StockResultListItem key={result.symbol} stockResult={result} />
           ))}
         </List.Section>
       ) : (
         <List.Section key="recent" title="Recently Viewed Stocks">
           {recentStocks.map((stockResult) => (
-            <StockResultListItem stockResult={stockResult} />
+            <StockResultListItem key={stockResult.symbol} stockResult={stockResult} />
           ))}
         </List.Section>
       )}
