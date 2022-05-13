@@ -1,4 +1,4 @@
-import { Detail, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, Detail, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { getStockInfoBySymbol, SearchResult, StockInfoInterface } from "./alphavantageApi";
 
@@ -9,14 +9,17 @@ interface StockInfoProps {
 export const StockInfo = ({ stockSearchResult }: StockInfoProps) => {
   const [loading, setLoading] = useState(true);
   const [stockInfo, setStockInfo] = useState<StockInfoInterface | null>(null);
+  const [error, setError] = useState(false);
 
   const getStockInfo = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getStockInfoBySymbol(stockSearchResult.symbol);
       setStockInfo(data);
+      setError(false);
     } catch (error) {
       console.log(error);
-
+      setError(true);
       showToast({ title: "Unable to fetch stock data", style: Toast.Style.Failure });
     }
     setLoading(false);
@@ -37,7 +40,9 @@ export const StockInfo = ({ stockSearchResult }: StockInfoProps) => {
  # ${stockSearchResult.symbol} - ${stockSearchResult.name}
  ---
  ${
-   loading
+   error
+     ? "Error retrieving data, please try again. \n Remember that with the free tier of the AlphaVantage API you are limited to 5 calls per minute or 500 per day."
+     : loading
      ? "Loading..."
      : `
      ${
@@ -62,6 +67,18 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
 
   return (
     <Detail
+      actions={
+        <ActionPanel>
+          {error && (
+            <Action
+              title="Refresh"
+              onAction={() => {
+                getStockInfo();
+              }}
+            />
+          )}
+        </ActionPanel>
+      }
       isLoading={loading}
       markdown={md}
       // metadata={stockInfo && !loading ? <Detail.Metadata></Detail.Metadata> : null}
