@@ -11,7 +11,7 @@ export default function StockLookup() {
   const testApiKey = async () => {
     try {
       // search to test if the api key is valid or not
-      await searchStocks({ keywords: "tesla" });
+      await searchStocks({ keywords: "a" });
       setIsValidApiKey(true);
     } catch (error) {
       await LocalStorage.removeItem("apiKey");
@@ -95,6 +95,7 @@ export default function StockLookup() {
       }}
       throttle={true}
     >
+      {/* TODO: add recently searched for stocks on default screen */}
       {stockSearchResults &&
         stockSearchResults.map((result) => {
           return (

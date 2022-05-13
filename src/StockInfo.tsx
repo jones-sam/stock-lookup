@@ -64,6 +64,11 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
  }
 `;
 
+  const googleFinanceUrl = `https://www.google.com/search?q=%24${stockSearchResult.symbol}`;
+  const yahooFinanceUrl = `https://finance.yahoo.com/quote/${stockSearchResult.symbol}`;
+  const tradingViewUrl = `https://www.tradingview.com/symbols/${stockSearchResult.symbol}`;
+  const twitterUrl = `https://twitter.com/search?q=%24${stockSearchResult.symbol}`;
+
   return (
     <Detail
       actions={
@@ -76,6 +81,10 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
               }}
             />
           )}
+          <Action.OpenInBrowser title="View on Google Finance" url={googleFinanceUrl} />
+          <Action.OpenInBrowser title="View on Yahoo Finance" url={yahooFinanceUrl} />
+          <Action.OpenInBrowser title="View on Trading View" url={tradingViewUrl} />
+          <Action.OpenInBrowser title="View on Twitter" url={twitterUrl} />
         </ActionPanel>
       }
       isLoading={loading}
@@ -83,30 +92,11 @@ As of the latest trading day on ${stockInfo?.lastTradingDay}:
       metadata={
         <Detail.Metadata>
           <Detail.Metadata.Label title="Links" icon={Icon.Link} />
-          {stockInfo && !loading ? (
-            <>
-              <Detail.Metadata.Link
-                target={`https://www.google.com/search?q=%24${stockSearchResult.symbol}`}
-                text="Google Finance"
-                title="Google"
-              />
-              <Detail.Metadata.Link
-                target={`https://finance.yahoo.com/quote/${stockSearchResult.symbol}`}
-                text="Yahoo Finance"
-                title="Yahoo"
-              />
-              <Detail.Metadata.Link
-                target={`https://www.tradingview.com/symbols/${stockSearchResult.symbol}`}
-                text="Trading View"
-                title="Trading View"
-              />
-              <Detail.Metadata.Link
-                target={`https://twitter.com/search?q=%24${stockSearchResult.symbol}`}
-                title="Discussions on Twitter"
-                text="Twitter"
-              />
-            </>
-          ) : null}
+
+          <Detail.Metadata.Link target={googleFinanceUrl} text="Google Finance" title="Google" />
+          <Detail.Metadata.Link target={yahooFinanceUrl} text="Yahoo Finance" title="Yahoo" />
+          <Detail.Metadata.Link target={tradingViewUrl} text="Trading View" title="Trading View" />
+          <Detail.Metadata.Link target={twitterUrl} title="Discussions on Twitter" text="Twitter" />
         </Detail.Metadata>
       }
     />
