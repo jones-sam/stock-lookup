@@ -89,7 +89,11 @@ export default function StockLookup() {
               ]}
               actions={
                 <ActionPanel>
-                  <Action.Push title={`View ${result.symbol}`} target={<StockInfo />} icon={Icon.Document} />
+                  <Action.Push
+                    title={`View ${result.symbol}`}
+                    target={<StockInfo stockSearchResult={result} />}
+                    icon={Icon.Document}
+                  />
                 </ActionPanel>
               }
             />

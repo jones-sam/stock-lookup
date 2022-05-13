@@ -10,6 +10,18 @@ export interface SearchResult {
   currency: string;
 }
 
+export interface StockInfoInterface {
+  open: string;
+  high: string;
+  low: string;
+  price: string;
+  volume: string;
+  lastTradingDay: string;
+  previousClose: string;
+  change: string;
+  changePercent: string;
+}
+
 export async function searchStocks({ keywords }: { keywords: string }) {
   const apiKey = await LocalStorage.getItem("apiKey");
 
@@ -31,4 +43,34 @@ export async function searchStocks({ keywords }: { keywords: string }) {
   console.log(searchResults);
 
   return searchResults;
+}
+
+export async function getStockInfoBySymbol(symbol: string) {
+  const apiKey = await LocalStorage.getItem("apiKey");
+
+  const res = await axios.get(`${BASE_URL}function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`);
+  console.log(res.data["Global Quote"]);
+
+  if (!res.data["Global Quote"] || (res.data["Global Quote"] && Object.keys(res.data["Global Quote"]).length === 0)) {
+    console.error(res.data);
+
+    throw Error("Could not retrieve stock info");
+  }
+
+  const rawData = res.data["Global Quote"];
+
+  const stockInfo: StockInfoInterface = {
+    open: rawData["02. open"],
+    high: rawData["03. high"],
+    low: rawData["04. low"],
+    price: rawData["05. price"],
+    volume: rawData["06. volume"],
+    lastTradingDay: rawData["07. latest trading day"],
+    previousClose: rawData["08. previous close"],
+    change: rawData["09. change"],
+    changePercent: rawData["10. change percent"],
+  };
+
+  console.log(stockInfo);
+  return stockInfo;
 }
