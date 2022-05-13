@@ -1,6 +1,7 @@
 import { Action, ActionPanel, confirmAlert, Form, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, searchStocks } from "./alphavantageApi";
+import { changeApiKeyAlert } from "./changeApiKeyAlert";
 import { StockResultListItem } from "./StockResultListItem";
 
 export default function StockLookup() {
@@ -11,6 +12,7 @@ export default function StockLookup() {
   const [recentStocks, setRecentStocks] = useState<SearchResult[]>([]);
 
   const testApiKey = async () => {
+    setIsLoading(true);
     try {
       // search to test if the api key is valid or not
       await searchStocks({ keywords: "a" });
@@ -20,9 +22,11 @@ export default function StockLookup() {
       setIsValidApiKey(false);
       showToast({ title: "Invalid API key or too many requests", style: Toast.Style.Failure });
     }
+    setIsLoading(false);
   };
 
   const getApiKey = useCallback(async () => {
+    await LocalStorage.removeItem("recentStocks");
     const apiKey = await LocalStorage.getItem("apiKey");
 
     if (!apiKey) {
@@ -47,6 +51,11 @@ export default function StockLookup() {
       getRecentlyViewedStocks();
     }
   }, [isSearching]);
+
+  const onChangeApiKey = async () => {
+    await LocalStorage.removeItem("apiKey");
+    setIsValidApiKey(false);
+  };
 
   if (!isValidApiKey) {
     return (
@@ -113,17 +122,30 @@ export default function StockLookup() {
       }}
       throttle={true}
     >
-      <List.EmptyView title="No Stocks Found" icon={Icon.LevelMeter} />
+      <List.EmptyView
+        title="No Stocks Found"
+        icon={Icon.LevelMeter}
+        actions={
+          <ActionPanel>
+            <Action
+              title="Change API Key"
+              onAction={async () => {
+                changeApiKeyAlert(onChangeApiKey);
+              }}
+            />
+          </ActionPanel>
+        }
+      />
       {isSearching ? (
         <List.Section key="results" title="Results">
           {stockSearchResults.map((result) => (
-            <StockResultListItem key={result.symbol} stockResult={result} />
+            <StockResultListItem key={result.symbol} stockResult={result} onChangeApiKey={onChangeApiKey} />
           ))}
         </List.Section>
       ) : (
         <List.Section key="recent" title="Recently Viewed Stocks">
           {recentStocks.map((stockResult) => (
-            <StockResultListItem key={stockResult.symbol} stockResult={stockResult} />
+            <StockResultListItem key={stockResult.symbol} stockResult={stockResult} onChangeApiKey={onChangeApiKey} />
           ))}
         </List.Section>
       )}
