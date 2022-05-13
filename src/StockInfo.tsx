@@ -41,7 +41,7 @@ export const StockInfo = ({ stockSearchResult }: StockInfoProps) => {
  ---
  ${
    error
-     ? "Error retrieving data, please try again. Remember that with the free tier of the AlphaVantage API you are limited to 5 calls per minute or 500 per day."
+     ? "Error retrieving data, please try again. Remember that with the free tier of the AlphaVantage API you are limited to 5 calls per minute and 500 per day."
      : loading
      ? "Loading..."
      : `

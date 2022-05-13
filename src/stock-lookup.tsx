@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Form, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
+import { Action, ActionPanel, confirmAlert, Form, Icon, List, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { SearchResult, searchStocks } from "./alphavantageApi";
 import { StockInfo } from "./StockInfo";
@@ -53,7 +53,7 @@ export default function StockLookup() {
           </ActionPanel>
         }
       >
-        <Form.TextField id="apiKey" placeholder="API Key" title="API Key" autoFocus={true} />
+        <Form.TextField id="apiKey" placeholder="API Key" title="API Key" autoFocus={true} storeValue={true} />
         <Form.Description
           text={`This extension uses the Alphavantage Stock API for market information. Go to https://www.alphavantage.co/support/#api-key for a free API Key and paste it in the text field above.\n\nPress ⌘ + ⇧ + ↵ to go to the link.`}
         />
@@ -62,6 +62,25 @@ export default function StockLookup() {
   }
   return (
     <List
+      actions={
+        <ActionPanel>
+          <Action
+            title="Change API Key"
+            onAction={async () => {
+              await confirmAlert({
+                title: "Are you sure you want to change your API key?",
+                primaryAction: {
+                  title: "Yes",
+                  onAction: async () => {
+                    await LocalStorage.clear();
+                    setIsValidApiKey(false);
+                  },
+                },
+              });
+            }}
+          />
+        </ActionPanel>
+      }
       isLoading={isLoading}
       searchBarPlaceholder="Search for a stock"
       onSearchTextChange={async (text) => {
